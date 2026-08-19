@@ -6,12 +6,7 @@ import { LABS, getLab, type Lab } from "@/lib/ai-labs";
 import { latLonToVec3, quatFromOutward, terminatorBasis } from "@/lib/geo";
 import { useGlobe } from "@/lib/globe-store";
 import { getSubsolarPoint } from "@/lib/sun";
-import {
-  atmosFrag,
-  atmosVert,
-  earthFrag,
-  earthVert,
-} from "./shaders";
+import { earthFrag, earthVert } from "./shaders";
 
 const VIEW_DISTANCE = 4.9;
 const FLY_DISTANCE = 3.65;
@@ -66,63 +61,24 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
     });
   }, [dayMap, nightMap, specMap]);
 
-  const atmosMat = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uSun: { value: new THREE.Vector3(1, 0, 0) },
-        uCam: { value: new THREE.Vector3(0, 0, VIEW_DISTANCE) },
-        uIntensity: { value: 1.05 },
-        uColor: { value: new THREE.Color("#8aa8a0") },
-      },
-      vertexShader: atmosVert,
-      fragmentShader: atmosFrag,
-      transparent: true,
-      depthWrite: false,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
-    });
-  }, []);
-
-  const atmosFront = useMemo(() => {
-    const m = atmosMat.clone();
-    m.side = THREE.FrontSide;
-    m.uniforms.uIntensity = { value: 0.35 };
-    m.uniforms.uColor = { value: new THREE.Color("#c4b49a") };
-    m.uniforms.uSun = atmosMat.uniforms.uSun;
-    m.uniforms.uCam = atmosMat.uniforms.uCam;
-    return m;
-  }, [atmosMat]);
-
   const { camera } = useThree();
 
   useFrame(() => {
     camera.getWorldPosition(CAM);
     earthMat.uniforms.uSun.value.copy(sunDir);
     earthMat.uniforms.uCam.value.copy(CAM);
-    atmosMat.uniforms.uSun.value.copy(sunDir);
-    atmosMat.uniforms.uCam.value.copy(CAM);
   });
 
   useEffect(() => {
     return () => {
       earthMat.dispose();
-      atmosMat.dispose();
-      atmosFront.dispose();
     };
-  }, [earthMat, atmosMat, atmosFront]);
+  }, [earthMat]);
 
   return (
-    <group>
-      <mesh material={earthMat}>
-        <sphereGeometry args={[1, 96, 64]} />
-      </mesh>
-      <mesh material={atmosFront} scale={1.012}>
-        <sphereGeometry args={[1, 64, 48]} />
-      </mesh>
-      <mesh material={atmosMat} scale={1.08}>
-        <sphereGeometry args={[1, 64, 48]} />
-      </mesh>
-    </group>
+    <mesh material={earthMat}>
+      <sphereGeometry args={[1, 96, 64]} />
+    </mesh>
   );
 }
 
