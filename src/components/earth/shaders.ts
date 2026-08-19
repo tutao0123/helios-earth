@@ -33,22 +33,22 @@ void main() {
   float specMask = texture2D(uSpec, vUv).r;
 
   float ndotl = dot(n, sun);
-  float dayF = smoothstep(-0.05, 0.22, ndotl);
-  float nightF = 1.0 - smoothstep(-0.02, 0.18, ndotl);
-  float twilight = exp(-pow(ndotl * 6.0, 2.0));
+  float dayF = smoothstep(-0.08, 0.32, ndotl);
+  float nightF = 1.0 - smoothstep(-0.06, 0.22, ndotl);
+  float twilight = exp(-pow(ndotl * 4.8, 2.0));
 
-  vec3 nightCol = day * 0.028 + lights * 1.85;
+  vec3 nightCol = day * 0.09 + lights * 1.55;
   vec3 color = mix(nightCol, day, dayF);
 
-  // Soft terminator scatter — physical dusk, kept quiet
-  color += vec3(0.22, 0.14, 0.08) * twilight * 0.22;
+  // Warm gouache dusk instead of physical scatter
+  color += vec3(0.42, 0.22, 0.10) * twilight * 0.28;
 
   vec3 halfV = normalize(sun + view);
-  float spec = pow(max(dot(n, halfV), 0.0), 48.0) * specMask * dayF;
-  color += vec3(0.55, 0.62, 0.72) * spec * 0.55;
+  float spec = pow(max(dot(n, halfV), 0.0), 22.0) * specMask * dayF;
+  color += vec3(0.72, 0.78, 0.80) * spec * 0.22;
 
-  float fres = pow(1.0 - max(dot(n, view), 0.0), 2.6);
-  color += vec3(0.35, 0.55, 0.75) * fres * 0.12 * dayF;
+  float fres = pow(1.0 - max(dot(n, view), 0.0), 2.2);
+  color += vec3(0.55, 0.48, 0.32) * fres * 0.08 * dayF;
 
   gl_FragColor = vec4(color, 1.0);
 }

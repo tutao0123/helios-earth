@@ -37,7 +37,7 @@ function sunFromTime(time: number, out: THREE.Vector3) {
 function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
   const [dayMap, nightMap, specMap] = useTexture([
     "/textures/earth-day.jpg",
-    "/textures/earth-night.png",
+    "/textures/earth-night.jpg",
     "/textures/earth-spec.jpg",
   ]);
 
@@ -71,8 +71,8 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
       uniforms: {
         uSun: { value: new THREE.Vector3(1, 0, 0) },
         uCam: { value: new THREE.Vector3(0, 0, VIEW_DISTANCE) },
-        uIntensity: { value: 1.15 },
-        uColor: { value: new THREE.Color("#7ea8c4") },
+        uIntensity: { value: 1.05 },
+        uColor: { value: new THREE.Color("#8aa8a0") },
       },
       vertexShader: atmosVert,
       fragmentShader: atmosFrag,
@@ -87,7 +87,7 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
     const m = atmosMat.clone();
     m.side = THREE.FrontSide;
     m.uniforms.uIntensity = { value: 0.35 };
-    m.uniforms.uColor = { value: new THREE.Color("#9bb8cc") };
+    m.uniforms.uColor = { value: new THREE.Color("#c4b49a") };
     m.uniforms.uSun = atmosMat.uniforms.uSun;
     m.uniforms.uCam = atmosMat.uniforms.uCam;
     return m;
