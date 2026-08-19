@@ -83,31 +83,3 @@ void main() {
   gl_FragColor = vec4(uColor * a, a);
 }
 `;
-
-export const cloudVert = /* glsl */ `
-varying vec2 vUv;
-varying vec3 vNormalW;
-void main() {
-  vUv = uv;
-  vNormalW = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}
-`;
-
-export const cloudFrag = /* glsl */ `
-uniform sampler2D uCloud;
-uniform vec3 uSun;
-uniform float uOffset;
-varying vec2 vUv;
-varying vec3 vNormalW;
-
-void main() {
-  vec2 uv = vec2(fract(vUv.x + uOffset), vUv.y);
-  vec4 tex = texture2D(uCloud, uv);
-  float alpha = max(tex.r, tex.a) * 0.52;
-  float ndotl = dot(normalize(vNormalW), normalize(uSun));
-  float lit = smoothstep(-0.15, 0.45, ndotl);
-  vec3 col = mix(vec3(0.04, 0.05, 0.07), vec3(0.96, 0.97, 0.98), lit);
-  gl_FragColor = vec4(col, alpha * mix(0.15, 1.0, lit));
-}
-`;

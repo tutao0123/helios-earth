@@ -9,8 +9,6 @@ import { getSubsolarPoint } from "@/lib/sun";
 import {
   atmosFrag,
   atmosVert,
-  cloudFrag,
-  cloudVert,
   earthFrag,
   earthVert,
 } from "./shaders";
@@ -37,11 +35,10 @@ function sunFromTime(time: number, out: THREE.Vector3) {
 }
 
 function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
-  const [dayMap, nightMap, specMap, cloudMap] = useTexture([
+  const [dayMap, nightMap, specMap] = useTexture([
     "/textures/earth-day.jpg",
     "/textures/earth-night.png",
     "/textures/earth-spec.jpg",
-    "/textures/earth-clouds.png",
   ]);
 
   useEffect(() => {
@@ -52,12 +49,8 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
       t.colorSpace = THREE.SRGBColorSpace;
     }
     specMap.colorSpace = THREE.NoColorSpace;
-    cloudMap.anisotropy = 4;
-    cloudMap.wrapS = THREE.RepeatWrapping;
-    cloudMap.wrapT = THREE.ClampToEdgeWrapping;
-    cloudMap.colorSpace = THREE.SRGBColorSpace;
     useGlobe.getState().setTexturesReady(true);
-  }, [dayMap, nightMap, specMap, cloudMap]);
+  }, [dayMap, nightMap, specMap]);
 
   const earthMat = useMemo(() => {
     return new THREE.ShaderMaterial({
@@ -72,20 +65,6 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
       fragmentShader: earthFrag,
     });
   }, [dayMap, nightMap, specMap]);
-
-  const cloudMat = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uCloud: { value: cloudMap },
-        uSun: { value: new THREE.Vector3(1, 0, 0) },
-        uOffset: { value: 0 },
-      },
-      vertexShader: cloudVert,
-      fragmentShader: cloudFrag,
-      transparent: true,
-      depthWrite: false,
-    });
-  }, [cloudMap]);
 
   const atmosMat = useMemo(() => {
     return new THREE.ShaderMaterial({
@@ -116,13 +95,10 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
 
   const { camera } = useThree();
 
-  useFrame((_, delta) => {
-    const d = Math.min(delta, 0.1);
+  useFrame(() => {
     camera.getWorldPosition(CAM);
     earthMat.uniforms.uSun.value.copy(sunDir);
     earthMat.uniforms.uCam.value.copy(CAM);
-    cloudMat.uniforms.uSun.value.copy(sunDir);
-    cloudMat.uniforms.uOffset.value = (cloudMat.uniforms.uOffset.value + d * 0.004) % 1;
     atmosMat.uniforms.uSun.value.copy(sunDir);
     atmosMat.uniforms.uCam.value.copy(CAM);
   });
@@ -130,19 +106,15 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
   useEffect(() => {
     return () => {
       earthMat.dispose();
-      cloudMat.dispose();
       atmosMat.dispose();
       atmosFront.dispose();
     };
-  }, [earthMat, cloudMat, atmosMat, atmosFront]);
+  }, [earthMat, atmosMat, atmosFront]);
 
   return (
     <group>
       <mesh material={earthMat}>
         <sphereGeometry args={[1, 96, 64]} />
-      </mesh>
-      <mesh material={cloudMat}>
-        <sphereGeometry args={[1.008, 64, 48]} />
       </mesh>
       <mesh material={atmosFront} scale={1.012}>
         <sphereGeometry args={[1, 64, 48]} />
