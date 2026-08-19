@@ -17,7 +17,7 @@ export function EarthApp() {
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-bg">
       <Canvas
-        camera={{ fov: 42, near: 0.1, far: 200, position: [0, 0.35, 2.6] }}
+        camera={{ fov: 36, near: 0.1, far: 200, position: [0, 0.4, 4.9] }}
         dpr={[1, 1.75]}
         gl={{
           antialias: true,

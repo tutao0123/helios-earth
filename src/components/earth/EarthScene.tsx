@@ -15,6 +15,11 @@ import {
   earthVert,
 } from "./shaders";
 
+const VIEW_DISTANCE = 4.9;
+const FLY_DISTANCE = 3.65;
+const MIN_DISTANCE = 2.7;
+const MAX_DISTANCE = 7.6;
+
 const SUN = new THREE.Vector3();
 const CAM = new THREE.Vector3();
 const TMP = new THREE.Vector3();
@@ -61,7 +66,7 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
         uNight: { value: nightMap },
         uSpec: { value: specMap },
         uSun: { value: new THREE.Vector3(1, 0, 0) },
-        uCam: { value: new THREE.Vector3(0, 0, 3) },
+        uCam: { value: new THREE.Vector3(0, 0, VIEW_DISTANCE) },
       },
       vertexShader: earthVert,
       fragmentShader: earthFrag,
@@ -86,7 +91,7 @@ function EarthGlobe({ sunDir }: { sunDir: THREE.Vector3 }) {
     return new THREE.ShaderMaterial({
       uniforms: {
         uSun: { value: new THREE.Vector3(1, 0, 0) },
-        uCam: { value: new THREE.Vector3(0, 0, 3) },
+        uCam: { value: new THREE.Vector3(0, 0, VIEW_DISTANCE) },
         uIntensity: { value: 1.15 },
         uColor: { value: new THREE.Color("#7ea8c4") },
       },
@@ -227,7 +232,7 @@ function Pin({ lab }: { lab: Lab }) {
           useGlobe.getState().flyTo(lab.id);
         }}
       >
-        <sphereGeometry args={[0.055, 12, 12]} />
+        <sphereGeometry args={[0.062, 12, 12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <mesh position={[0, 0, 0.028]} rotation={[Math.PI / 2, 0, 0]}>
@@ -235,11 +240,11 @@ function Pin({ lab }: { lab: Lab }) {
         <meshBasicMaterial color={selected ? "#f4f1ea" : "#9aadb8"} />
       </mesh>
       <mesh position={[0, 0, 0.058]} ref={core}>
-        <sphereGeometry args={[0.02, 16, 16]} />
+        <sphereGeometry args={[0.022, 16, 16]} />
         <meshBasicMaterial color={selected ? "#f4f1ea" : "#d5dee4"} />
       </mesh>
       <mesh position={[0, 0, 0.058]}>
-        <ringGeometry args={[0.026, 0.033, 24]} />
+        <ringGeometry args={[0.028, 0.036, 24]} />
         <meshBasicMaterial
           color={selected ? "#e8eef2" : "#8aa0ae"}
           side={THREE.DoubleSide}
@@ -251,7 +256,7 @@ function Pin({ lab }: { lab: Lab }) {
         <Html
           position={[0, 0, 0.1]}
           center
-          distanceFactor={2.8}
+          distanceFactor={3.4}
           style={{ pointerEvents: "none" }}
           zIndexRange={[20, 0]}
         >
@@ -279,11 +284,11 @@ function CameraRig({ sunDir }: { sunDir: THREE.Vector3 }) {
     perp.normalize();
     camera.position
       .copy(sunDir)
-      .multiplyScalar(0.28)
-      .addScaledVector(perp, 0.92)
-      .add(new THREE.Vector3(0, 0.28, 0))
+      .multiplyScalar(0.22)
+      .addScaledVector(perp, 0.95)
+      .add(new THREE.Vector3(0, 0.22, 0))
       .normalize()
-      .multiplyScalar(2.55);
+      .multiplyScalar(VIEW_DISTANCE);
     camera.lookAt(0, 0, 0);
   }, [camera, sunDir]);
 
@@ -295,7 +300,7 @@ function CameraRig({ sunDir }: { sunDir: THREE.Vector3 }) {
     flying.current = {
       t: 0,
       from: camera.position.clone(),
-      to: latLonToVec3(lab.lat, lab.lon, 2.28),
+      to: latLonToVec3(lab.lat, lab.lon, FLY_DISTANCE),
     };
     if (controls.current) controls.current.enabled = false;
   }, [flyNonce, flyId, camera]);
@@ -322,8 +327,8 @@ function CameraRig({ sunDir }: { sunDir: THREE.Vector3 }) {
       enablePan={false}
       enableDamping
       dampingFactor={0.08}
-      minDistance={1.42}
-      maxDistance={4.8}
+      minDistance={MIN_DISTANCE}
+      maxDistance={MAX_DISTANCE}
       rotateSpeed={0.55}
       zoomSpeed={0.75}
       minPolarAngle={0.18}
