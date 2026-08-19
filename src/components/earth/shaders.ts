@@ -47,39 +47,6 @@ void main() {
   float spec = pow(max(dot(n, halfV), 0.0), 22.0) * specMask * dayF;
   color += vec3(0.72, 0.78, 0.80) * spec * 0.22;
 
-  float fres = pow(1.0 - max(dot(n, view), 0.0), 2.2);
-  color += vec3(0.55, 0.48, 0.32) * fres * 0.08 * dayF;
-
   gl_FragColor = vec4(color, 1.0);
-}
-`;
-
-export const atmosVert = /* glsl */ `
-varying vec3 vNormalW;
-varying vec3 vPosW;
-void main() {
-  vec4 world = modelMatrix * vec4(position, 1.0);
-  vPosW = world.xyz;
-  vNormalW = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * viewMatrix * world;
-}
-`;
-
-export const atmosFrag = /* glsl */ `
-uniform vec3 uSun;
-uniform vec3 uCam;
-uniform float uIntensity;
-uniform vec3 uColor;
-varying vec3 vNormalW;
-varying vec3 vPosW;
-
-void main() {
-  vec3 n = normalize(vNormalW);
-  vec3 view = normalize(uCam - vPosW);
-  vec3 sun = normalize(uSun);
-  float fres = pow(1.0 - abs(dot(n, view)), 2.4);
-  float sunFacing = smoothstep(-0.3, 0.7, dot(n, sun));
-  float a = fres * uIntensity * mix(0.22, 1.0, sunFacing);
-  gl_FragColor = vec4(uColor * a, a);
 }
 `;
